@@ -1,14 +1,13 @@
 <?php
 require "../config/database.php";
 
+$id = $conn->real_escape_string($_POST["id"]);
 $nombre = $conn->real_escape_string($_POST["nombre"]);
 $descripcion = $conn->real_escape_string($_POST["descripcion"]);
 $genero = $conn->real_escape_string($_POST["genero"]);
 
-$sql = "INSERT INTO pelicula (nombre, descripcion, id_genero, fecha_alta)
-VALUES ('$nombre','$descripcion', '$genero', NOW())";
-if ($conn->query($sql)) {
-    $id = $conn->insert_id;
-}
+$sql = "UPDATE pelicula SET nombre = '$nombre', descripcion = '$descripcion', id_genero = '$genero' WHERE id=$id";
 
-header("Location: index.php");
+if ($conn->query($sql)) {
+    header("Location: index.php");
+}

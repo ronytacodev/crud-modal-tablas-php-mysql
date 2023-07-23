@@ -1,5 +1,10 @@
 <?php
 require "../config/database.php";
+
+$sqlPeliculas = "SELECT p.id, p.nombre, p.descripcion, g.nombre AS genero FROM pelicula AS p 
+INNER JOIN genero AS g ON p.id_genero = g.id";
+$peliculas = $conn->query($sqlPeliculas);
+// print_r($peliculas->fetch_assoc());
 ?>
 
 <!DOCTYPE html>
@@ -33,30 +38,77 @@ require "../config/database.php";
                     <th>Descripción</th>
                     <th>Género</th>
                     <th>Poster</th>
-                    <th>Acciones</th>
+                    <th colspan="2">Acciones</th>
                 </tr>
             </thead>
 
             <tbody>
 
+                <?php while ($row_pelicula = $peliculas->fetch_assoc()) { ?>
+                    <tr>
+                        <td><?= $row_pelicula["id"]; ?></td>
+                        <td><?= $row_pelicula["nombre"]; ?></td>
+                        <td><?= $row_pelicula["descripcion"]; ?></td>
+                        <td><?= $row_pelicula["genero"]; ?></td>
+                        <td></td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editarModal" data-bs-id="<?= $row_pelicula['id']; ?>"><i class="fa-solid fa-pen-to-square"></i></a>
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarModal" data-bs-id="<?= $row_pelicula['id']; ?>"><i class="fa-solid fa-trash"></i></a>
+                        </td>
+                    </tr>
+                <?php } ?>
+
             </tbody>
         </table>
-
-        <?php
-        $sqlGenero = "SELECT id, nombre FROM genero";
-        $generos = $conn->query($sqlGenero);
-        ?>
-
-        <?php
-        include "nuevoModal.php";
-        ?>
-
     </div>
 
+    <?php
+    $sqlGenero = "SELECT id, nombre FROM genero";
+    $generos = $conn->query($sqlGenero);
+    ?>
 
+    <?php include "nuevoModal.php"; ?>
+    <?php $generos->data_seek(0); ?>
+    <?php include "editarModal.php"; ?>
+    <?php include "eliminarModal.php"; ?>
 
+    <script>
+        let editarModal = document.getElementById('editarModal');
+        let eliminarModal = document.getElementById('eliminarModal');
 
+        editarModal.addEventListener('shown.bs.modal', event => {
+            let button = event.relatedTarget;
+            let id = button.getAttribute('data-bs-id');
 
+            let inputId = editarModal.querySelector('.modal-body #id');
+            let inputNombre = editarModal.querySelector('.modal-body #nombre');
+            let inputDescripcion = editarModal.querySelector('.modal-body #descripcion');
+            let inputGenero = editarModal.querySelector('.modal-body #genero');
+
+            let url = "getPelicula.php";
+            let formData = new FormData();
+            formData.append('id', id);
+
+            fetch(url, {
+                    method: "POST",
+                    body: formData
+                }).then(response => response.json())
+                .then(data => {
+                    inputId.value = data.id
+                    inputNombre.value = data.nombre
+                    inputDescripcion.value = data.descripcion
+                    inputGenero.value = data.id_genero
+                }).catch(err => console.log(err))
+        });
+
+        eliminarModal.addEventListener('shown.bs.modal', event => {
+            let button = event.relatedTarget;
+            let id = button.getAttribute('data-bs-id');
+            eliminarModal.querySelector('.modal-footer #id').value = id;
+        });
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
 

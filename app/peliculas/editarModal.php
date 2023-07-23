@@ -1,13 +1,16 @@
 <!-- Modal -->
-<div class="modal fade" id="nuevoModal" tabindex="-1" aria-labelledby="nuevoModalLabel" aria-hidden="true">
+<div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="editarModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="nuevoModalLabel">Agregar registro</h1>
+                <h1 class="modal-title fs-5" id="editarModalLabel">Editar registro</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="guarda.php" method="POST" enctype="multipart/form-data">
+                <form action="actualiza.php" method="POST" enctype="multipart/form-data">
+
+                    <input type="hidden" id="id" name="id">
+
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre:</label>
                         <input type="text" name="nombre" id="nombre" class="form-control" required>
@@ -35,7 +38,7 @@
 
                     <div class="">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                        <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Actualizar</button>
                     </div>
                 </form>
             </div>
