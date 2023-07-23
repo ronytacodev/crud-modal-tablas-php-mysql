@@ -1,9 +1,14 @@
 <?php
+
+session_start();
+
 require "../config/database.php";
 
 $sqlPeliculas = "SELECT p.id, p.nombre, p.descripcion, g.nombre AS genero FROM pelicula AS p 
 INNER JOIN genero AS g ON p.id_genero = g.id";
 $peliculas = $conn->query($sqlPeliculas);
+
+$dir = "posters/";
 // print_r($peliculas->fetch_assoc());
 ?>
 
@@ -23,6 +28,18 @@ $peliculas = $conn->query($sqlPeliculas);
     <div class="container py-3">
 
         <h2 class="text-center">Peliculas</h2>
+
+        <hr>
+
+        <?php if (isset($_SESSION['msg']) && isset($_SESSION['color'])) { ?>
+            <div class="alert alert-<?= $_SESSION['color']; ?> alert-dismissible fade show" role="alert">
+                <?= $_SESSION['msg']; ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php
+            unset($_SESSION['msg']);
+            unset($_SESSION['color']);
+        } ?>
 
         <div class="row justify-content-end">
             <div class="col-auto">
@@ -50,7 +67,7 @@ $peliculas = $conn->query($sqlPeliculas);
                         <td><?= $row_pelicula["nombre"]; ?></td>
                         <td><?= $row_pelicula["descripcion"]; ?></td>
                         <td><?= $row_pelicula["genero"]; ?></td>
-                        <td></td>
+                        <td><img src="<?= $dir . $row_pelicula["id"] . '.jpg?n=' . time(); ?>" width="100"></td>
                         <td>
                             <a href="#" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editarModal" data-bs-id="<?= $row_pelicula['id']; ?>"><i class="fa-solid fa-pen-to-square"></i></a>
                         </td>
@@ -75,8 +92,28 @@ $peliculas = $conn->query($sqlPeliculas);
     <?php include "eliminarModal.php"; ?>
 
     <script>
+        let nuevoModal = document.getElementById('nuevoModal');
         let editarModal = document.getElementById('editarModal');
         let eliminarModal = document.getElementById('eliminarModal');
+
+        nuevoModal.addEventListener('shown.bs.modal', event => {
+            nuevoModal.querySelector('.modal-body #nombre').focus()
+        })
+
+        nuevoModal.addEventListener('hide.bs.modal', event => {
+            nuevoModal.querySelector('.modal-body #nombre').value = "";
+            nuevoModal.querySelector('.modal-body #descripcion').value = "";
+            nuevoModal.querySelector('.modal-body #genero').value = "";
+            nuevoModal.querySelector('.modal-body #poster').value = "";
+        })
+
+        editarModal.addEventListener('hide.bs.modal', event => {
+            editarModal.querySelector('.modal-body #nombre').value = "";
+            editarModal.querySelector('.modal-body #descripcion').value = "";
+            editarModal.querySelector('.modal-body #genero').value = "";
+            editarModal.querySelector('.modal-body #img_poster').value = "";
+            editarModal.querySelector('.modal-body #poster').value = "";
+        })
 
         editarModal.addEventListener('shown.bs.modal', event => {
             let button = event.relatedTarget;
@@ -86,6 +123,7 @@ $peliculas = $conn->query($sqlPeliculas);
             let inputNombre = editarModal.querySelector('.modal-body #nombre');
             let inputDescripcion = editarModal.querySelector('.modal-body #descripcion');
             let inputGenero = editarModal.querySelector('.modal-body #genero');
+            let poster = editarModal.querySelector('.modal-body #img_poster');
 
             let url = "getPelicula.php";
             let formData = new FormData();
@@ -100,6 +138,7 @@ $peliculas = $conn->query($sqlPeliculas);
                     inputNombre.value = data.nombre
                     inputDescripcion.value = data.descripcion
                     inputGenero.value = data.id_genero
+                    poster.src = '<?= $dir ?>' + data.id + '.jpg'
                 }).catch(err => console.log(err))
         });
 
